@@ -14,6 +14,12 @@ class DefaultBuy:
         if not (is_app):
             return self.cashback(self, amount, card_name, check_list)
 
+    def app_cashback(self, amount, card_name, check_list):
+        return 0
+
+    def cashback(self, amount, card_name, check_list):
+        return 0
+
 
 class AppBonus(DefaultBuy):
     def __init__(self):
@@ -63,7 +69,8 @@ class MeatSale(CardSale):
 
     def cashback(self, amount, card_name, check_list):
         return super().cashback(self, amount, card_name,
-                                    check_list) # т.к. данная акция может быть активна только с приложением
+                                check_list)  # т.к. данная акция может быть активна только с приложением
+
 
 class BakeryAndHotDrinkSale(CardSale):
     def __init__(self):
@@ -89,15 +96,15 @@ class BakeryAndHotDrinkSale(CardSale):
 
 
 class UserCheck:
-    def __init__(self, amount, check_list, is_app, card_name, plan=None):
+    def __init__(self, amount, check_list, card_name, is_app, plan=None):
         self.amount = amount
-        self.check_list = check_list  # кортеж (Название, тип, цена)
+        self.check_list = check_list
         self.is_app = is_app
         self.card_name = card_name
         self.plan = plan
         self._sum = None
-        if (self.plan is None):
-            self.call_plan = DefaultBuy
+        if self.plan == None:
+            self.plan = DefaultBuy
 
     def __str__(self):
         return "Чек на {0._sum} рублей".format(self)
@@ -111,9 +118,11 @@ class UserCheck:
                                                      self.check_list)
 
 
+# Продукты, которые отсканировал клиент на кассе. Формируется как (Название, тип, цена).
 check_products = (("Мясо", "meat", 50),
                   ("Пицца", "bakery", 50))
-fedor = UserCheck(100, check_products, True, "WordPay", MeatSale)
+# После оплаты(sum([s[2] for s in check_products]) - сумма в чеке). Формируется как (Сумма в чеке, лист покупок, название банк. карты, скачано ли приложение магазина, какой вид скидок был выбран в магазине)
+fedor = UserCheck(sum([s[2] for s in check_products]), check_products, "WordPay", True, MeatSale)
 fedor.result_amount()
 
 print(fedor)
